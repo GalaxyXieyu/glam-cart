@@ -1,0 +1,119 @@
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, JSON
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+from datetime import datetime
+import uuid
+
+Base = declarative_base()
+
+def utc_now():
+    """Return current UTC datetime with microsecond precision."""
+    return datetime.utcnow()
+
+class Product(Base):
+    __tablename__ = "products"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String, nullable=False, index=True)
+    code = Column(String, nullable=False, unique=True, index=True)
+    description = Column(Text)
+    
+    # Product type and classification fields - now more flexible
+    product_type = Column(String)  # 'tube' or 'box' based on Excel data
+    tube_type = Column(String)     # Various tube types from Excel
+    box_type = Column(String)      # Various box types from Excel
+    process_type = Column(String)  # Process type from Excel
+    
+    # Basic properties - now flexible strings
+    functional_designs = Column(String)  # Store as comma-separated string or single value
+    shape = Column(String, nullable=False)
+    material = Column(String, nullable=False)
+    
+    # Dimensions (stored as JSON for flexibility)
+    dimensions = Column(JSON)  # ProductDimensions object with weight, length, width, height, capacity, compartments
+    
+    # Pricing information
+    cost_price = Column(Float, default=0.0)
+    factory_price = Column(Float, nullable=False)
+    has_sample = Column(Boolean, default=False)
+    box_dimensions = Column(String)
+    box_quantity = Column(Integer)
+    
+    # Status and metadata
+    in_stock = Column(Boolean, default=True)
+    popularity_score = Column(Integer, default=0)
+    is_featured = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=utc_now)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
+    
+    # Relationships
+    images = relationship("ProductImage", back_populates="product", cascade="all, delete-orphan")
+
+class ProductImage(Base):
+    __tablename__ = "product_images"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    product_id = Column(String, ForeignKey("products.id"), nullable=False)
+    url = Column(String, nullable=False)  # Relative path to image
+    alt = Column(String, nullable=False)
+    type = Column(String, nullable=False)  # 'main', 'gallery', 'dimensions', 'detail'
+    sort_order = Column(Integer, default=0)  # For ordering images
+    created_at = Column(DateTime, default=utc_now)
+
+    # Relationships
+    product = relationship("Product", back_populates="images")
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    username = Column(String, unique=True, nullable=False, index=True)
+    hashed_password = Column(String, nullable=False)
+    role = Column(String, default="admin")
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=utc_now)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
+
+class Carousel(Base):
+    __tablename__ = "carousels"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    title = Column(String, nullable=False)
+    description = Column(Text)
+    image_url = Column(String, nullable=False)
+    link_url = Column(String)  # Optional link when clicked
+    is_active = Column(Boolean, default=True)
+    sort_order = Column(Integer, default=0)  # For ordering slides
+    created_at = Column(DateTime, default=utc_now)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
+
+class FeaturedProduct(Base):
+    __tablename__ = "featured_products"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    product_id = Column(String, ForeignKey("products.id"), nullable=False)
+    is_active = Column(Boolean, default=True)
+    sort_order = Column(Integer, default=0)  # For ordering featured products
+    created_at = Column(DateTime, default=utc_now)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
+
+    # Relationships
+    product = relationship("Product", backref="featured_entries")
+
+class Settings(Base):
+    __tablename__ = "settings"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    company_name = Column(String, default="汕头博捷科技有限公司")
+    company_logo = Column(String, default="博捷科技")
+    company_description = Column(Text, default="专业提供化妆品定制、批量生产、样品申请和设计咨询服务")
+    contact_phone = Column(String, default="+86 123 4567 8910")
+    contact_email = Column(String, default="contact@bojietech.com")
+    contact_address = Column(String, default="广东省汕头市某某区某某路88号")
+    customer_service_qr_code = Column(String)  # 客服二维码图片路径
+    wechat_number = Column(String, default="bojie_tech")
+    created_at = Column(DateTime, default=utc_now)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
+
+# Keep original enums for reference, but models are no longer restricted to these
+IMAGE_TYPES = ['main', 'gallery', 'dimensions', 'detail']

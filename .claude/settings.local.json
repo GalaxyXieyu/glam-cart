@@ -1,0 +1,20 @@
+{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "sk-IXgo7Ife3RnFl1JjoupJZnuoa5sRXw3T",
+    "ANTHROPIC_BASE_URL": "https://api.packycode.com",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(npm run build:*)",
+      "Bash(source:*)",
+      "Bash(python:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(git checkout:*)"
+    ],
+    "deny": []
+  }
+}
