@@ -32,8 +32,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          # 安装后端依赖（包含 fastapi/uvicorn 等），否则启动 API 会失败
+          pip install -r backend/requirements.txt
+          # 额外测试依赖
           # pytest-allure 不存在于 PyPI；allure 的 pytest 插件包名是 allure-pytest
-          pip install pytest allure-pytest pyyaml requests httpx
+          pip install allure-pytest pyyaml
           pip install -e ./api-auto-test
 
       - name: Start API server
