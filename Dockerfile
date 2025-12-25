@@ -40,12 +40,15 @@ COPY --from=frontend-builder /app/frontend/dist ./frontend_dist
 # 创建数据目录（用于挂载 PVC）
 RUN mkdir -p /data/images
 
-# 设置环境变量
+# 设置环境变量（生产环境通过 Sealos 覆盖）
 ENV HOST=0.0.0.0
 ENV PORT=8000
 ENV DEBUG=False
 ENV DATABASE_URL=sqlite:////data/glam_cart.db
 ENV UPLOAD_DIR=/data/images
+ENV SECRET_KEY=change-this-in-production
+ENV ADMIN_USERNAME=admin
+ENV ADMIN_PASSWORD=admin123
 
 # 暴露端口
 EXPOSE 8000

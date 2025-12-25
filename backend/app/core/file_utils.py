@@ -18,9 +18,10 @@ try:
 except:
     pass
 
-# 配置
-STATIC_DIR = "static"
-IMAGES_DIR = os.path.join(STATIC_DIR, "images")
+# 配置（支持环境变量）
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", "static/images")
+IMAGES_DIR = UPLOAD_DIR
+STATIC_DIR = os.path.dirname(UPLOAD_DIR) if "/" in UPLOAD_DIR else "static"
 CAROUSEL_DIR = os.path.join(IMAGES_DIR, "carousel")
 QR_CODES_DIR = os.path.join(STATIC_DIR, "qr_codes")
 
